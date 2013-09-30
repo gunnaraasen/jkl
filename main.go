@@ -13,41 +13,34 @@ import (
 )
 
 var (
-	// directory where Jekyll will look to transform files
-	source = flag.String("source", "", "")
+	// Flag options
+	auto        = flag.Bool("auto", false, "re-generates the site when files are modified")
+	baseurl     = flag.String("base-url", "", "serves the website from a given base url")
+	source      = flag.String("source", "", "directory where jkl will look to transform files")
+	destination = flag.String("destination", "_site", "directory where jkl will write files to")
+	server      = flag.Bool("server", false, "fires up a server that will host your _site directory if True")
+	port        = flag.String("server_port", ":4000", "the port that the jkl server will run on")
+	deploy      = flag.Bool("s3", false, "deploys the website to S3")
+	s3key       = flag.String("s3_key", "", "s3 access key")
+	s3secret    = flag.String("s3_secret", "", "s3 secret key")
+	s3bucket    = flag.String("s3_bucket", "", "s3 bucket name")
+	verbose     = flag.Bool("verbose", false, "runs jkl with verbose output if True")
 
-	// directory where Jekyll will write files to
-	destination = flag.String("destination", "_site", "")
+	// Chnge the default output of the -help flag.
+	usage = func() {
+		fmt.Fprintf(os.Stderr, "usage: %s [inputfile]\n", os.Args[0])
+		flag.PrintDefaults()
+		fmt.Println(`Usage: jkl [OPTION]... [SOURCE]
 
-	// fires up a server that will host your _site directory if True
-	server = flag.Bool("server", false, "")
+		Examples:
+		  jkl                 generates site from current working directory
+		  jkl --server        generates site and serves at localhost:4000
+		  jkl /path/to/site   generates site from source dir /path/to/site
 
-	// the port that the Jekyll server will run on
-	port = flag.String("server_port", ":4000", "")
-
-	// re-generates the site when files are modified.
-	auto = flag.Bool("auto", false, "")
-
-	// deploys the website to S3
-	deploy = flag.Bool("s3", false, "")
-
-	// serves the website from the specified base url
-	baseurl = flag.String("base-url", "", "")
-
-	// s3 access key
-	s3key = flag.String("s3_key", "", "")
-
-	// s3 secret key
-	s3secret = flag.String("s3_secret", "", "")
-
-	// s3 bucket name
-	s3bucket = flag.String("s3_bucket", "", "")
-
-	// runs Jekyll with verbose output if True
-	verbose = flag.Bool("verbose", false, "")
-
-	// displays the help / usage if True
-	help = flag.Bool("help", false, "")
+		Report bugs to <https://github.com/bradrydzewski/jkl/issues>
+		jkl home page: <https://github.com/bradrydzewski/jkl>`)
+		os.Exit(2)
+	}
 )
 
 // Mutex used when doing auto-builds
@@ -56,15 +49,8 @@ var mu sync.RWMutex
 func main() {
 
 	// Parse the input parameters
-	flag.BoolVar(help, "h", false, "")
-	flag.BoolVar(verbose, "v", false, "")
 	flag.Usage = usage
 	flag.Parse()
-
-	if *help {
-		flag.Usage()
-		os.Exit(0)
-	}
 
 	// User may specify the source as a non-flag variable
 	if flag.NArg() > 0 {
@@ -78,7 +64,7 @@ func main() {
 	// Change the working directory to the website's source directory
 	os.Chdir(src)
 
-	// Initialize the Jekyll website
+	// Initialize the jkl website
 	site, err := NewSite(src, dest)
 	if err != nil {
 		fmt.Println(err)
@@ -103,7 +89,7 @@ func main() {
 		// Read the S3 configuration details if not provided as
 		// command line
 		if *s3key == "" {
-			path := filepath.Join(site.Src, "_jekyll_s3.yml")
+			path := filepath.Join(site.Src, "_jkl_s3.yml")
 			conf, err = ParseDeployConfig(path)
 			if err != nil {
 				fmt.Println(err)
@@ -211,29 +197,4 @@ func logf(msg string, args ...interface{}) {
 	if *verbose {
 		println(fmt.Sprintf(msg, args...))
 	}
-}
-
-var usage = func() {
-	fmt.Println(`Usage: jkl [OPTION]... [SOURCE]
-
-      --auto           re-generates the site when files are modified
-      --base-url       serve website from a given base URL
-      --source         changes the dir where Jekyll will look to transform files
-      --destination    changes the dir where Jekyll will write files to
-      --server         starts a server that will host your _site directory
-      --server-port    changes the port that the Jekyll server will run on
-      --s3             copies the _site directory to s3
-      --s3_key         aws access key use for s3 authentication
-      --s3_secret      aws secret key use for s3 authentication
-      --s3_bucket      name of the s3 bucket
-  -v, --verbose        runs Jekyll with verbose output
-  -h, --help           display this help and exit
-
-Examples:
-  jkl                 generates site from current working directory
-  jkl --server        generates site and serves at localhost:4000
-  jkl /path/to/site   generates site from source dir /path/to/site
-
-Report bugs to <https://github.com/bradrydzewski/jkl/issues>
-Jekyll home page: <https://github.com/bradrydzewski/jkl>`)
 }
