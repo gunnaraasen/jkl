@@ -33,8 +33,8 @@ type Site struct {
 
 func NewSite(src, dest string) (*Site, error) {
 
-	// Parse the _config.yml file
-	path := filepath.Join(src, "_config.yml")
+	// Parse the _config.yaml file
+	path := filepath.Join(src, "_config.yaml")
 	conf, err := ParseConfig(path)
 	logf(MsgUsingConfig, path)
 	if err != nil {

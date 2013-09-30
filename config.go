@@ -5,7 +5,7 @@ import (
 	"launchpad.net/goyaml"
 )
 
-// Config represents the key-value pairs in a _config.yml file.
+// Config represents the key-value pairs in a _config.yaml file.
 // The file is freeform, and thus requires the flexibility of a map.
 type Config map[string]interface{}
 
@@ -51,7 +51,7 @@ func parseConfig(data []byte) (Config, error) {
 	return conf, nil
 }
 
-// DeployConfig represents the key-value data in the _jekyll_s3.yml file
+// DeployConfig represents the key-value data in the _jekyll_s3.yaml file
 // used for deploying a website to Amazon's S3.
 type DeployConfig struct {
 	Key    string `s3_id:""`
