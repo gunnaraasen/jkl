@@ -28,10 +28,9 @@ var (
 
 	// Chnge the default output of the -help flag.
 	usage = func() {
-		fmt.Fprintf(os.Stderr, "usage: %s [inputfile]\n", os.Args[0])
+		fmt.Println("Usage: jkl [OPTION]... [SOURCE]")
 		flag.PrintDefaults()
-		fmt.Println(`Usage: jkl [OPTION]... [SOURCE]
-
+		fmt.Println(`
 		Examples:
 		  jkl                 generates site from current working directory
 		  jkl --server        generates site and serves at localhost:4000
