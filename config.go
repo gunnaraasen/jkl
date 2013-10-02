@@ -40,7 +40,7 @@ func ParseConfig(path string) (Config, error) {
 	}
 
 	conf := map[string]interface{}{}
-	err := goyaml.Unmarshal(data, &conf)
+	err = goyaml.Unmarshal(data, &conf)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func ParseDeployConfig(path string) (*DeployConfig, error) {
 	}
 
 	conf := DeployConfig{}
-	err := goyaml.Unmarshal(data, &conf)
+	err = goyaml.Unmarshal(data, &conf)
 	if err != nil {
 		return nil, err
 	}

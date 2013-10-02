@@ -31,13 +31,13 @@ var (
 		fmt.Println("Usage: jkl [OPTION]... [SOURCE]")
 		flag.PrintDefaults()
 		fmt.Println(`
-		Examples:
-		  jkl                 generates site from current working directory
-		  jkl --server        generates site and serves at localhost:4000
-		  jkl /path/to/site   generates site from source dir /path/to/site
+	Examples:
+	  jkl                 generates site from current working directory
+	  jkl --server        generates site and serves at localhost:4000
+	  jkl /path/to/site   generates site from source dir /path/to/site
 
-		Report bugs to <https://github.com/bradrydzewski/jkl/issues>
-		jkl home page: <https://github.com/bradrydzewski/jkl>`)
+	Report bugs to <https://github.com/bradrydzewski/jkl/issues>
+	jkl home page: <https://github.com/bradrydzewski/jkl>`)
 		os.Exit(2)
 	}
 )
@@ -119,8 +119,6 @@ func main() {
 		os.Chdir(dest)
 
 		// Create the handler to serve from the filesystem
-		http.HandleFunc("/", handler)
-		
 		handler := func(w http.ResponseWriter, r *http.Request) {
 			mu.RLock()
 			defer mu.RUnlock()
@@ -136,6 +134,7 @@ func main() {
 			path = filepath.Join(dest, path)
 			http.ServeFile(w, r, path)
 		}
+		http.HandleFunc("/", handler)
 
 		// Serve the website from the _site directory
 		fmt.Printf("Starting server on port %s\n", *port)
