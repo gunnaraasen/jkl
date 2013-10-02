@@ -25,7 +25,7 @@ type Site struct {
 	Dest string // Directory where Jekyll will write files to
 	Conf Config // Configuration date from the _config.yml file
 
-	posts []Page             // Posts thet need to be generated
+	posts []Page             // Posts that need to be generated
 	pages []Page             // Pages that need to be generated
 	files []string           // Static files to get copied to the destination
 	templ *template.Template // Compiled templates
@@ -65,25 +65,25 @@ func (s *Site) Reload() error {
 	return s.read()
 }
 
-// Prepares the source directory for site generation
-func (s *Site) Prep() error {
+// Prep prepares the source directory for site generation
+func (s *Site) prep() error {
 	return os.MkdirAll(s.Dest, 0755)
 }
 
-// Removes the existing site (typically in _site).
-func (s *Site) Clear() error {
+// Clear removes the existing site (typically in _site).
+func (s *Site) clear() error {
 	return os.RemoveAll(s.Dest)
 }
 
-// Generates a static website based on Jekyll standard layout.
+// Generate  a static website based on Jekyll standard layout.
 func (s *Site) Generate() error {
 
 	// Remove previously generated site, and then (re)create the
 	// destination directory
-	if err := s.Clear(); err != nil {
+	if err := s.clear(); err != nil {
 		return err
 	}
-	if err := s.Prep(); err != nil {
+	if err := s.prep(); err != nil {
 		return err
 	}
 

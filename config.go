@@ -34,15 +34,12 @@ func (c Config) GetString(key string) (str string) {
 // valid YAML parameters found; err describes the first unmarshalling
 // error encountered, if any.
 func ParseConfig(path string) (Config, error) {
-	b, err := ioutil.ReadFile(path)
+	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	return parseConfig(b)
-}
 
-func parseConfig(data []byte) (Config, error) {
-	conf := map[string] interface{} { }
+	conf := map[string]interface{}{}
 	err := goyaml.Unmarshal(data, &conf)
 	if err != nil {
 		return nil, err
@@ -62,14 +59,11 @@ type DeployConfig struct {
 // ParseDeployConfig will parse a YAML file at the given path and return
 // a key-value DeployConfig structure.
 func ParseDeployConfig(path string) (*DeployConfig, error) {
-	b, err := ioutil.ReadFile(path)
+	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	return parseDeployConfig(b)
-}
 
-func parseDeployConfig(data []byte) (*DeployConfig, error) {
 	conf := DeployConfig{}
 	err := goyaml.Unmarshal(data, &conf)
 	if err != nil {

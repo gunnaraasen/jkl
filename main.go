@@ -116,10 +116,12 @@ func main() {
 	if *server {
 
 		// Change the working directory to the _site directory
-		//os.Chdir(dest)
+		os.Chdir(dest)
 
 		// Create the handler to serve from the filesystem
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.HandleFunc("/", handler)
+		
+		handler := func(w http.ResponseWriter, r *http.Request) {
 			mu.RLock()
 			defer mu.RUnlock()
 
@@ -133,7 +135,7 @@ func main() {
 			path = filepath.Clean(path)
 			path = filepath.Join(dest, path)
 			http.ServeFile(w, r, path)
-		})
+		}
 
 		// Serve the website from the _site directory
 		fmt.Printf("Starting server on port %s\n", *port)
