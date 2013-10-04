@@ -34,7 +34,7 @@ func ParsePost(fn string) (Page, error) {
 		post["title"] = t
 	}
 
-	// figoure out the Posts permalink
+	// figure out the Posts permalink
 	mon := fmt.Sprintf("%02d", d.Month())
 	day := fmt.Sprintf("%02d", d.Day())
 	year := fmt.Sprintf("%02d", d.Year())

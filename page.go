@@ -44,7 +44,6 @@ func parsePage(fn string, c []byte) (Page, error) {
 
 	page["ext"] = ext
 	page["output_ext"] = ext_output
-	page["id"] = removeExt(fn)
 	page["url"] = replaceExt(fn, ext_output)
 
 	// if markdown, convert to html
