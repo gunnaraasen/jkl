@@ -194,7 +194,7 @@ func (s *Site) read() error {
 		return err
 	}
 
-	// Compile all templates found, if any
+	// Compile all templates found, if any.
 	if len(layouts) > 0 {
 		s.templ, err = template.New("layouts").Funcs(funcMap).ParseFiles(layouts...)
 		if err != nil {
@@ -226,32 +226,20 @@ func (s *Site) writePages() error {
 		url := page.GetUrl()
 		layout := page.GetLayout()
 
-		// is the layout provided? or is it nil /empty?
-		//layoutNil := layout == "" || layout == "nil"
-
-		// make sure the posts's parent dir exists
+		// Make sure the posts's parent dir exists
 		d := filepath.Join(s.Dest, filepath.Dir(url))
 		f := filepath.Join(s.Dest, url)
 		if err := os.MkdirAll(d, 0755); err != nil {
 			return err
 		}
 
-		// if markdown, need to convert to html
-		// otherwise just convert raw html to a string
-		//var content string
-		//if isMarkdown(page.GetExt()) {
-		//	content = string(blackfriday.MarkdownCommon(raw))
-		//} else {
-		//	content = string(raw)
-		//}
-
-		//data passed in to each template
+		// Data passed in to each template
 		data := map[string]interface{}{
 			"site": s.Conf,
 			"page": page,
 		}
 
-		// treat all non-markdown pages as templates
+		// Treat all non-markdown pages as templates
 		content := page.GetContent()
 		if isMarkdown(page.GetExt()) == false {
 			// this code will add the page to the list of templates,
