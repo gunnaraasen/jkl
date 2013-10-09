@@ -23,6 +23,7 @@ func appendExt(fn, ext string) string {
 //
 // TODO use native Go code to copy file to enable Windows support
 func copyTo(from, to string) error {
+
 	os.MkdirAll(filepath.Dir(to), 0755)
 	if err := exec.Command("cp", from, to).Run(); err != nil {
 		return err

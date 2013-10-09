@@ -15,6 +15,8 @@ import (
 
 var (
 	MsgCopyingFile  = "Copying File: %s"
+	MsgParsingPost  = "Parsing Post: %s"
+	MsgParsingPage  = "Parsing Page: %s"
 	MsgGenerateFile = "Generating Page: %s"
 	MsgUploadFile   = "Uploading: %s"
 	MsgUsingConfig  = "Loading Config: %s"
@@ -165,6 +167,7 @@ func (s *Site) read() error {
 
 		// Parse Posts
 		case isPost(rel):
+			logf(MsgParsingPost, rel)
 			post, err := ParsePost(rel)
 			if err != nil {
 				return err
@@ -174,6 +177,7 @@ func (s *Site) read() error {
 
 		// Parse Pages
 		case isPage(rel):
+			logf(MsgParsingPage, rel)
 			page, err := ParsePage(rel)
 			if err != nil {
 				return err
