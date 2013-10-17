@@ -9,6 +9,7 @@ import (
 	"mime"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 	"time"
 )
@@ -41,6 +42,11 @@ func NewSite(src, dest string) (*Site, error) {
 	logf(MsgUsingConfig, path)
 	if err != nil {
 		return nil, err
+	}
+
+	// Use alternate destination if "dest" is given in _config.yaml file
+	if conf.Get("dest") != nil {
+		dest = conf.GetString("dest")
 	}
 
 	site := Site{
@@ -167,8 +173,19 @@ func (s *Site) read() error {
 
 		// Parse Posts
 		case isPost(rel):
+<<<<<<< HEAD
 			logf(MsgParsingPost, rel)
 			post, err := ParsePost(rel)
+=======
+			permalink := s.Conf.GetString("permalink")
+			if permalink == "" {
+				// According to Jekyll documentation 'date' is the
+				// default permalink
+				permalink = "date"
+			}
+
+			post, err := ParsePost(rel, permalink)
+>>>>>>> development
 			if err != nil {
 				return err
 			}
@@ -228,6 +245,11 @@ func (s *Site) writePages() error {
 
 	for _, page := range pages {
 		url := page.GetUrl()
+
+		if strings.HasSuffix(url, "/") {
+			url += "index.html"
+		}
+
 		layout := page.GetLayout()
 
 		// Make sure the posts's parent dir exists
@@ -286,6 +308,7 @@ func (s *Site) writePages() error {
 		}
 
 		logf(MsgGenerateFile, url)
+		logf(MsgGenerateFile, f)
 		if err := ioutil.WriteFile(f, buf.Bytes(), 0644); err != nil {
 			return err
 		}
