@@ -42,6 +42,11 @@ func NewSite(src, dest string) (*Site, error) {
 		return nil, err
 	}
 
+	// Use alternate destination if "dest" is given in _config.yaml file
+	if conf.Get("dest") != nil {
+		dest = conf.GetString("dest")
+	}
+
 	site := Site{
 		Src:  src,
 		Dest: dest,
@@ -295,6 +300,7 @@ func (s *Site) writePages() error {
 		}
 
 		logf(MsgGenerateFile, url)
+		logf(MsgGenerateFile, f)
 		if err := ioutil.WriteFile(f, buf.Bytes(), 0644); err != nil {
 			return err
 		}
