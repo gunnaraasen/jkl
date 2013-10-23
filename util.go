@@ -31,6 +31,16 @@ func copyTo(from, to string) error {
 	return nil
 }
 
+// Returns true if rel has a prefix that matches a string in Site.ignore
+func (s Site) isIgnore(rel string) bool {
+	for _, ignore := range s.ignore {
+		if strings.HasPrefix(rel, ignore) {
+			return true
+		}
+	}
+	return false
+}
+
 // Returns True if a file has YAML front-end matter.
 func hasMatter(fn string) bool {
 	sample, _ := sniff(strings.TrimLeft(fn, " \t\n"), 4)

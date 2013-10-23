@@ -8,7 +8,7 @@ Notable similarities between jkl and Jekyll:
 * Directory structure
 * Use of YAML front matter in Pages and Posts
 * Availability of `site`, `content`, `page` and `posts` variables in templates
-* Copies all static files into destination directory
+* Copies all static files into destination directory that can retain existing files in that directory
 
 Notable differences between jkl and Jekyll:
 

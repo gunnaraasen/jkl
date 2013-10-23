@@ -18,6 +18,8 @@ var (
 	MsgCopyingFile  = "Copying File: %s"
 	MsgParsingPost  = "Parsing Post: %s"
 	MsgParsingPage  = "Parsing Page: %s"
+	MsgIgnoreDir    = "Ignoring Destination Directory: %s"
+	MsgIgnoreFile   = "Ignoring Destination File: %s"
 	MsgGenerateFile = "Generating Page: %s"
 	MsgUploadFile   = "Uploading: %s"
 	MsgUsingConfig  = "Loading Config: %s"
@@ -25,13 +27,16 @@ var (
 
 type Site struct {
 	Src  string // Directory where Jekyll will look to transform files
-	Dest string // Directory where Jekyll will write files to
+	Dest string // Directory where Jekyll will write the site files
 	Conf Config // Configuration date from the _config.yml file
 
 	posts []Page             // Posts that need to be generated
 	pages []Page             // Pages that need to be generated
 	files []string           // Static files to get copied to the destination
 	templ *template.Template // Compiled templates
+
+	ignore []string // List of file/directory prefixes that will be ignored
+	// (not deleted) in the destination directory (eg .git)
 }
 
 func NewSite(src, dest string) (*Site, error) {
@@ -44,16 +49,23 @@ func NewSite(src, dest string) (*Site, error) {
 		return nil, err
 	}
 
-	// Use alternate destination if "dest" is given in _config.yaml file
+	// Use alternate destination if "dest" is given in config
 	if conf.Get("dest") != nil {
 		dest = conf.GetString("dest")
 	}
 
 	site := Site{
-		Src:  src,
-		Dest: dest,
-		Conf: conf,
+		Src:    src,
+		Dest:   dest,
+		Conf:   conf,
+		ignore: []string{},
 	}
+
+	// Create the list of prefixes to ignore in the destination
+	// directory. Note: Sprint is used to avoid using reflect to
+	// translate the YAML list []interface{} into []string
+	ignore := fmt.Sprint(conf.Get("destignore"))
+	site.ignore = strings.Split(ignore[1:len(ignore)-1], " ")
 
 	// Recursively process all files in the source directory
 	// and parse pages, posts, templates, etc
@@ -73,24 +85,56 @@ func (s *Site) Reload() error {
 	return s.read()
 }
 
-// Prep prepares the source directory for site generation
+// Prep removes all files in the existing site (typically in _site)
+// except for files in ignore
 func (s *Site) prep() error {
-	return os.MkdirAll(s.Dest, 0755)
-}
+	// Create the destination directory if it doesn't already exist
+	if err := os.MkdirAll(s.Dest, 0755); err != nil {
+		return err
+	}
 
-// Clear removes the existing site (typically in _site).
-func (s *Site) clear() error {
-	return os.RemoveAll(s.Dest)
+	// Walk dest and remove any files not matching prefixes from ignore
+	walker := func(fn string, fi os.FileInfo, err error) error {
+		rel, err := filepath.Rel(s.Dest, fn)
+		if err != nil {
+			return err
+		}
+		switch {
+		case err != nil:
+			return nil
+
+		case s.Dest == fn:
+			return nil
+
+		case s.isIgnore(rel) && fi.IsDir():
+			logf(MsgIgnoreDir, rel)
+			return filepath.SkipDir
+
+		case s.isIgnore(rel):
+			logf(MsgIgnoreFile, rel)
+			return nil
+
+		case fi.IsDir():
+			return os.RemoveAll(fn)
+
+		default:
+			return os.Remove(fn)
+		}
+		return nil
+	}
+
+	// Call the walker function to remove non-ignored files
+	if err := filepath.Walk(s.Dest, walker); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Generate  a static website based on Jekyll standard layout.
 func (s *Site) Generate() error {
-
-	// Remove previously generated site, and then (re)create the
-	// destination directory
-	if err := s.clear(); err != nil {
-		return err
-	}
+	// Remove previously generated site files while preserving
+	// ignore files
 	if err := s.prep(); err != nil {
 		return err
 	}
@@ -173,10 +217,7 @@ func (s *Site) read() error {
 
 		// Parse Posts
 		case isPost(rel):
-<<<<<<< HEAD
 			logf(MsgParsingPost, rel)
-			post, err := ParsePost(rel)
-=======
 			permalink := s.Conf.GetString("permalink")
 			if permalink == "" {
 				// According to Jekyll documentation 'date' is the
@@ -185,7 +226,6 @@ func (s *Site) read() error {
 			}
 
 			post, err := ParsePost(rel, permalink)
->>>>>>> development
 			if err != nil {
 				return err
 			}
@@ -308,7 +348,6 @@ func (s *Site) writePages() error {
 		}
 
 		logf(MsgGenerateFile, url)
-		logf(MsgGenerateFile, f)
 		if err := ioutil.WriteFile(f, buf.Bytes(), 0644); err != nil {
 			return err
 		}
