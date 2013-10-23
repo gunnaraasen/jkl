@@ -32,7 +32,7 @@ func copyTo(from, to string) error {
 }
 
 // Returns true if rel has a prefix that matches a string in Site.ignore
-func (s Site) isIgnore(rel string) bool {
+func (s *Site) isIgnore(rel string) bool {
 	for _, ignore := range s.ignore {
 		if strings.HasPrefix(rel, ignore) {
 			return true
