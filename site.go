@@ -23,6 +23,7 @@ var (
 	MsgGenerateFile = "Generating Page: %s"
 	MsgUploadFile   = "Uploading: %s"
 	MsgUsingConfig  = "Loading Config: %s"
+	MsgIgnoreSlice  = "Ignore Slice: %s"
 )
 
 type Site struct {
@@ -62,10 +63,13 @@ func NewSite(src, dest string) (*Site, error) {
 	}
 
 	// Create the list of prefixes to ignore in the destination
-	// directory. Note: Sprint is used to avoid using reflect to
-	// translate the YAML list []interface{} into []string
-	ignore := fmt.Sprint(conf.Get("destignore"))
-	site.ignore = strings.Split(ignore[1:len(ignore)-1], " ")
+	// directory.
+	if ignore := conf.Get("destignore").([]interface{}); ignore != nil {
+		site.ignore = make([]string, len(ignore))
+		for i, v := range ignore {
+			site.ignore[i] = v.(string)
+		}
+	}
 
 	// Recursively process all files in the source directory
 	// and parse pages, posts, templates, etc
