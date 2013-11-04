@@ -27,6 +27,18 @@ func (c Config) GetString(key string) (str string) {
 	return
 }
 
+// Gets a parameter value as a slice of strings. If none exists return an empty string slice.
+func (c Config) GetStringSlice(key string) (str []string) {
+	if v, ok := c[key]; ok {
+		slice := v.([]interface{})
+		str = make([]string, len(slice))
+		for i, v := range slice {
+			str[i] = v.(string)
+		}
+	}
+	return
+}
+
 // ParseConfig will parse a YAML file at the given path and return
 // a key-value Config structure.
 //

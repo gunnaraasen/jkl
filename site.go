@@ -23,7 +23,6 @@ var (
 	MsgGenerateFile = "Generating Page: %s"
 	MsgUploadFile   = "Uploading: %s"
 	MsgUsingConfig  = "Loading Config: %s"
-	MsgIgnoreSlice  = "Ignore Slice: %s"
 )
 
 type Site struct {
@@ -64,12 +63,7 @@ func NewSite(src, dest string) (*Site, error) {
 
 	// Create the list of prefixes to ignore in the destination
 	// directory.
-	if ignore := conf.Get("destignore").([]interface{}); ignore != nil {
-		site.ignore = make([]string, len(ignore))
-		for i, v := range ignore {
-			site.ignore[i] = v.(string)
-		}
-	}
+	site.ignore = conf.GetStringSlice("destignore")
 
 	// Recursively process all files in the source directory
 	// and parse pages, posts, templates, etc
@@ -127,8 +121,10 @@ func (s *Site) prep() error {
 		return nil
 	}
 
-	// Call the walker function to remove non-ignored files
-	if err := filepath.Walk(s.Dest, walker); err != nil {
+	// Call the walker function to remove non-ignored files, if any
+	if s.ignore == nil {
+		os.RemoveAll(s.Dest)
+	} else if err := filepath.Walk(s.Dest, walker); err != nil {
 		return err
 	}
 
