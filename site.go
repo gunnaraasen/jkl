@@ -104,11 +104,11 @@ func (s *Site) prep() error {
 		case s.Dest == fn:
 			return nil
 
-		case s.isIgnore(rel) && fi.IsDir():
+		case s.matchIgnore(rel) && fi.IsDir():
 			logf(MsgIgnoreDir, rel)
 			return filepath.SkipDir
 
-		case s.isIgnore(rel):
+		case s.matchIgnore(rel):
 			logf(MsgIgnoreFile, rel)
 			return nil
 
@@ -129,6 +129,16 @@ func (s *Site) prep() error {
 	}
 
 	return nil
+}
+
+// Returns true if rel has a prefix that matches a string in Site.ignore
+func (s *Site) matchIgnore(rel string) bool {
+	for _, ignore := range s.ignore {
+		if strings.HasPrefix(rel, ignore) {
+			return true
+		}
+	}
+	return false
 }
 
 // Generate  a static website based on Jekyll standard layout.
