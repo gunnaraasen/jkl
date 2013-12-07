@@ -63,9 +63,9 @@ func ParseConfig(path string) (Config, error) {
 // DeployConfig represents the key-value data in the _jekyll_s3.yaml file
 // used for deploying a website to Amazon's S3.
 type DeployConfig struct {
-	Key    string `s3_id:""`
-	Secret string `s3_secret:""`
-	Bucket string `s3_bucket:""`
+	Key    string `s3_id`
+	Secret string `s3_secret`
+	Bucket string `s3_bucket`
 }
 
 // ParseDeployConfig will parse a YAML file at the given path and return
