@@ -28,12 +28,19 @@ func (c Config) GetString(key string) (str string) {
 }
 
 // Gets a parameter value as a slice of strings. If none exists return an empty string slice.
-func (c Config) GetStringSlice(key string) (str []string) {
+func (c Config) GetStrings(key string) (strs []string) {
 	if v, ok := c[key]; ok {
-		slice := v.([]interface{})
-		str = make([]string, len(slice))
-		for i, v := range slice {
-			str[i] = v.(string)
+		switch v.(type) {
+		case []interface{}:
+			for _, s := range v.([]interface{}) {
+				strs = append(strs, s.(string))
+			}
+		case string:
+			for _, s := range strings.Split(v.(string), ",") {
+				if x := strings.TrimSpace(s); len(x) > 0 {
+					strs = append(strs, x)
+				}
+			}
 		}
 	}
 	return
