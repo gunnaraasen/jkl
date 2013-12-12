@@ -3,10 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/extemporalgenome/slug"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/extemporalgenome/slug"
 )
 
 var (

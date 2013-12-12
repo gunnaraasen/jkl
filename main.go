@@ -1,8 +1,6 @@
 package main
 
 import (
-	"github.com/howeyc/fsnotify"
-
 	"flag"
 	"fmt"
 	"net/http"
@@ -10,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/howeyc/fsnotify"
 )
 
 var (
