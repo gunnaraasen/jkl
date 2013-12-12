@@ -4,14 +4,16 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"launchpad.net/goamz/aws"
-	"launchpad.net/goamz/s3"
 	"mime"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/gorilla/feeds"
+	"launchpad.net/goamz/aws"
+	"launchpad.net/goamz/s3"
 )
 
 var (
@@ -21,6 +23,7 @@ var (
 	MsgIgnoreDir    = "Ignoring Destination Directory: %s"
 	MsgIgnoreFile   = "Ignoring Destination File: %s"
 	MsgGenerateFile = "Generating Page: %s"
+	MsgGenerateFeed = "Generating Feed: %s"
 	MsgUploadFile   = "Uploading: %s"
 	MsgUsingConfig  = "Loading Config: %s"
 )
@@ -286,6 +289,17 @@ func (s *Site) read() error {
 // during site generation.
 func (s *Site) writePages() error {
 
+	// Set up feed.
+	now := time.Now()
+	feed := &feeds.Feed{
+		Title:       s.Conf.GetString("title"),
+		Link:        &feeds.Link{Href: s.Conf.GetString("baseurl")},
+		Description: s.Conf.GetString("description"),
+		Author:      &feeds.Author{s.Conf.GetString("author"), s.Conf.GetString("email")},
+		Created:     now,
+		Copyright:   s.Conf.GetString("copyright"),
+	}
+
 	// There is really no difference between a Page and a Post (other than
 	// initial parsing) so we can combine the lists and use the same rendering
 	// code for both.
@@ -361,7 +375,33 @@ func (s *Site) writePages() error {
 		if err := ioutil.WriteFile(f, buf.Bytes(), 0644); err != nil {
 			return err
 		}
+
+		// Append posts to the feed. Posts are any page with a date field.
+		var postTime time.Time
+		if date := page.Get("date"); date != nil {
+			postTime = date.(time.Time)
+		}
+		if !postTime.IsZero() {
+			feed.Add(&feeds.Item{
+				Title:       page.GetTitle(),
+				Link:        &feeds.Link{Href: page.GetUrl()},
+				Description: page.GetDescription(),
+				Author:      &feeds.Author{Name: page.GetString("author")},
+				Created:     postTime,
+			})
+		}
 	}
+
+	// Write feed to atom.xml.
+	atom, err := feed.ToAtom()
+	if err != nil {
+		return err
+	}
+	feedPath := "atom.xml"
+	if err := ioutil.WriteFile(filepath.Join(s.Dest, feedPath), []byte(atom), 0644); err != nil {
+		return err
+	}
+	logf(MsgGenerateFeed, feedPath)
 
 	return nil
 }
