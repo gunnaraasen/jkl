@@ -185,6 +185,15 @@ func (p Page) GetContent() (c string) {
 	return
 }
 
+func (p Page) GetDescription() (desc string) {
+	desc = p.GetString("description")
+	if desc == "" {
+		content := p.GetString("content")
+		desc = strings.Join(strings.SplitN(content, " ", 10)[:10], " ")
+	}
+	return
+}
+
 // Gets the list of tags to which this Post belongs.
 func (p Page) GetTags() []string {
 	return p.GetStrings("tags")
