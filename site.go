@@ -66,7 +66,7 @@ func NewSite(src, dest string) (*Site, error) {
 
 	// Create the list of prefixes to ignore in the destination
 	// directory.
-	site.ignore = conf.GetStringSlice("destignore")
+	site.ignore = conf.GetStrings("destignore")
 
 	// Recursively process all files in the source directory
 	// and parse pages, posts, templates, etc

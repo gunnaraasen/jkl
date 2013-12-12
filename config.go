@@ -27,7 +27,7 @@ func (c Config) GetString(key string) (str string) {
 	return
 }
 
-// Gets a parameter value as a slice of strings. If none exists return an empty string slice.
+// Gets a parameter value as a string array. If none exists return an empty string slice.
 func (c Config) GetStrings(key string) (strs []string) {
 	if v, ok := c[key]; ok {
 		switch v.(type) {
