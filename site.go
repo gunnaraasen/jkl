@@ -430,7 +430,7 @@ func (s *Site) calculateCategories() {
 	categories := make(map[string][]Page)
 	for _, post := range s.posts {
 		for _, category := range post.GetCategories() {
-			if posts, ok := categories[category]; ok == false {
+			if posts, ok := categories[category]; ok == true {
 				categories[category] = append(posts, post)
 			} else {
 				categories[category] = []Page{post}
@@ -448,7 +448,7 @@ func (s *Site) calculateTags() {
 	tags := make(map[string][]Page)
 	for _, post := range s.posts {
 		for _, tag := range post.GetTags() {
-			if posts, ok := tags[tag]; ok == false {
+			if posts, ok := tags[tag]; ok == true {
 				tags[tag] = append(posts, post)
 			} else {
 				tags[tag] = []Page{post}
